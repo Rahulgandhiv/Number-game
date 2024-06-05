@@ -1,0 +1,79 @@
+import java.util.Scanner;
+import java.util.Timer;
+import java.util.TimerTask;
+
+public class QuizApplication {
+    private static final int TIME_LIMIT = 10;  // Time limit for each question in seconds
+    private static final int NUM_QUESTIONS = 3; // Number of questions in the quiz
+
+    private static int score = 0;
+    private static int currentQuestionIndex = 0;
+    private static String[] questions = {
+        "What is the capital of France?",
+        "Which planet is known as the Red Planet?",
+        "Who wrote 'To Kill a Mockingbird'?"
+    };
+
+    private static String[][] options = {
+        {"1. Berlin", "2. Madrid", "3. Paris", "4. Rome"},
+        {"1. Earth", "2. Mars", "3. Jupiter", "4. Venus"},
+        {"1. Harper Lee", "2. J.K. Rowling", "3. Mark Twain", "4. Charles Dickens"}
+    };
+
+    private static int[] correctAnswers = {3, 2, 1};  // Correct answers' index (1-based)
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        while (currentQuestionIndex < NUM_QUESTIONS) {
+            displayQuestion(currentQuestionIndex);
+            startTimer(scanner);
+            currentQuestionIndex++;
+        }
+
+        displayResult();
+        scanner.close();
+    }
+
+    private static void displayQuestion(int questionIndex) {
+        System.out.println("Question " + (questionIndex + 1) + ": " + questions[questionIndex]);
+        for (String option : options[questionIndex]) {
+            System.out.println(option);
+        }
+    }
+
+    private static void startTimer(Scanner scanner) {
+        Timer timer = new Timer();
+        TimerTask task = new TimerTask() {
+            public void run() {
+                System.out.println("\nTime's up! Moving to the next question.");
+                timer.cancel();
+            }
+        };
+        timer.schedule(task, TIME_LIMIT * 1000);
+
+        System.out.print("Enter your answer (1-4): ");
+        long startTime = System.currentTimeMillis();
+        String input = scanner.nextLine();
+        long elapsedTime = (System.currentTimeMillis() - startTime) / 1000;
+
+        if (elapsedTime < TIME_LIMIT) {
+            int answer = Integer.parseInt(input);
+            if (answer == correctAnswers[currentQuestionIndex]) {
+                score++;
+                System.out.println("Correct!");
+            } else {
+                System.out.println("Incorrect.");
+            }
+            timer.cancel();
+        }
+    }
+
+    private static void displayResult() {
+        System.out.println("\nQuiz Over! Your score: " + score + "/" + NUM_QUESTIONS);
+        for (int i = 0; i < NUM_QUESTIONS; i++) {
+            System.out.println("Question " + (i + 1) + ": " + questions[i]);
+            System.out.println("Your answer: " + options[i][correctAnswers[i] - 1] + " (Correct)");
+        }
+    }
+}
